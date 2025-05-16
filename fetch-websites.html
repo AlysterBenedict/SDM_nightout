@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Fetch Websites - E-Com Data Finder</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,96 +12,27 @@
             --secondary: #0ea5e9;
             --success: #22c55e;
             --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
         }
 
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        .page-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 2rem;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-card {
+        .search-form {
             background: white;
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
-            transform: translateY(0);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .search-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
         .form-group {
             margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .form-control, .form-select {
-            border: 2px solid #e2e8f0;
-            border-radius: 1rem;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #f8fafc;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            background: white;
-        }
-
-        .input-icon {
-            position: absolute;
-            right: 1rem;
-            top: 2.5rem;
-            color: #94a3b8;
-            transition: color 0.3s ease;
-        }
-
-        .form-control:focus + .input-icon {
-            color: var(--primary);
         }
 
         .btn-search {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: white;
             border: none;
-            border-radius: 1rem;
-            padding: 1rem 2rem;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
             transition: all 0.3s ease;
         }
 
@@ -111,77 +41,24 @@
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         }
 
-        .btn-search::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: 0.5s;
-        }
-
-        .btn-search:hover::before {
-            left: 100%;
-        }
-
-        .search-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .feature-title {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0.5rem;
-        }
-
-        .feature-description {
-            color: #64748b;
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
-
         .loading-overlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
             background: rgba(255, 255, 255, 0.9);
-            display: none;
+            z-index: 9999;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
         }
 
         .loading-spinner {
             width: 50px;
             height: 50px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -190,111 +67,82 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .toast-container {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 1000;
-        }
-
-        .toast {
-            background: white;
-            border-radius: 1rem;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .toast-success { border-left: 4px solid var(--success); }
-        .toast-error { border-left: 4px solid var(--danger); }
-
-        @media (max-width: 768px) {
-            .page-container { margin: 1rem auto; }
-            .search-card { padding: 1.5rem; }
-            .page-title { font-size: 1.75rem; }
-        }
     </style>
 </head>
 <body>
-    <!-- Include navigation -->
     <div id="nav-placeholder"></div>
 
-    <div class="page-container">
-        <h1 class="page-title">
-            <i class="fas fa-globe"></i>
-            Fetch Websites
-        </h1>
+    <div class="container py-4">
+        <h1 class="mb-4">Fetch Websites</h1>
 
-        <div class="search-card">
-            <form id="fetchWebsitesForm">
-                <div class="form-group">
-                    <label for="country" class="form-label">Select Country</label>
-                    <select class="form-select" id="country" required>
-                        <option value="">Choose a country...</option>
-                        <option value="US">United States</option>
-                        <option value="GB">United Kingdom</option>
-                        <option value="CA">Canada</option>
-                        <option value="AU">Australia</option>
-                        <option value="IN">India</option>
-                        <option value="DE">Germany</option>
-                        <option value="FR">France</option>
-                        <option value="IT">Italy</option>
-                        <option value="ES">Spain</option>
-                        <option value="JP">Japan</option>
-                    </select>
-                    <i class="fas fa-globe input-icon"></i>
+        <div class="workflow-progress mb-4">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 33%" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <span class="progress-step active">1. Fetch Websites</span>
+                <span class="progress-step">2. Filter Websites</span>
+                <span class="progress-step">3. Extract Emails</span>
+            </div>
+        </div>
+
+        <div class="search-form">
+            <form id="searchForm">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="industry" class="form-label">Industry</label>
+                            <input type="text" class="form-control" id="industry" required>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="city" class="form-label">City or Region</label>
-                    <input type="text" class="form-control" id="city" placeholder="e.g. New York, Texas" required>
-                    <i class="fas fa-map-marker-alt input-icon"></i>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="count" class="form-label">Number of Results</label>
+                            <input type="number" class="form-control" id="count" value="20" min="1" max="200" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="maxPages" class="form-label">Max Pages to Search</label>
+                            <input type="number" class="form-control" id="maxPages" value="10" min="1" max="20" required>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="industry" class="form-label">Industry Type</label>
-                    <input type="text" class="form-control" id="industry" placeholder="e.g. Fashion, Electronics" required>
-                    <i class="fas fa-industry input-icon"></i>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-search">
+                        <i class="fas fa-search me-2"></i>
+                        Search Websites
+                    </button>
                 </div>
-
-                <div class="form-group">
-                    <label for="count" class="form-label">Number of Results</label>
-                    <input type="number" class="form-control" id="count" min="1" max="1000" value="100" required>
-                    <i class="fas fa-hashtag input-icon"></i>
-                </div>
-
-                <button type="submit" class="btn-search">
-                    <i class="fas fa-search me-2"></i>
-                    Start Search
-                </button>
             </form>
         </div>
 
-        <div class="search-features">
-            <div class="feature-card">
-                <i class="fas fa-bolt feature-icon"></i>
-                <h3 class="feature-title">Fast Search</h3>
-                <p class="feature-description">Quick and efficient website discovery across regions</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-shield-alt feature-icon"></i>
-                <h3 class="feature-title">Verified Data</h3>
-                <p class="feature-description">All websites are verified and validated</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-chart-line feature-icon"></i>
-                <h3 class="feature-title">Analytics</h3>
-                <p class="feature-description">Detailed insights and metrics</p>
+        <div id="results" class="results-section" style="display: none;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Website</th>
+                            <th>Search Query</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -303,35 +151,18 @@
         <div class="loading-spinner"></div>
     </div>
 
-    <div class="toast-container"></div>
-
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    
+
     <script>
         // Load navigation
         fetch('nav.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('nav-placeholder').innerHTML = data;
-                
-                // Initialize logout button after nav is loaded
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', async function() {
-                        try {
-                            await firebase.auth().signOut();
-                            localStorage.clear();
-                            window.location.replace('login.html');
-                        } catch (error) {
-                            console.error('Error signing out:', error);
-                            alert('Error signing out. Please try again.');
-                        }
-                    });
-                }
             });
 
         // Initialize Firebase
@@ -348,77 +179,82 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // Show loading overlay
-        function showLoading() {
-            document.querySelector('.loading-overlay').style.display = 'flex';
-        }
-
-        // Hide loading overlay
-        function hideLoading() {
-            document.querySelector('.loading-overlay').style.display = 'none';
-        }
-
-        // Show toast message
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" 
-                   style="color: var(--${type === 'success' ? 'success' : 'danger'})"></i>
-                <span>${message}</span>
-            `;
-            document.querySelector('.toast-container').appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
-        }
-
-        // Handle form submission
-        document.getElementById('fetchWebsitesForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            showLoading();
-
-            try {
-                const user = auth.currentUser;
-                if (!user) {
-                    throw new Error('Please login to continue');
-                }
-
-                const data = {
-                    userId: user.uid,
-                    userEmail: user.email,
-                    country: document.getElementById('country').value,
-                    city: document.getElementById('city').value,
-                    industry: document.getElementById('industry').value,
-                    count: Number(document.getElementById('count').value),
-                    timestamp: new Date()
-                };
-
-                await db.collection('searchQueries').add(data);
-                showToast('Search query saved successfully!');
-                // Add next step button
-                const nextStepBtn = document.createElement('button');
-                nextStepBtn.className = 'btn-fetch mt-3';
-                nextStepBtn.innerHTML = `
-                    <i class="fas fa-arrow-right me-2"></i>
-                    Continue to Filter Websites
-                `;
-                nextStepBtn.onclick = () => window.location.href = 'filter-websites.html';
-                document.querySelector('.search-card').appendChild(nextStepBtn);
-                
-                // Redirect after delay
-                setTimeout(() => window.location.href = 'filter-websites.html', 2000);
-            } catch (err) {
-                showToast(err.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        });
-
         // Check authentication
-        auth.onAuthStateChanged(function(user) {
+        auth.onAuthStateChanged(user => {
             if (!user) {
                 window.location.href = 'login.html';
             }
         });
+
+        // Handle form submission
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const country = document.getElementById('country').value;
+            const city = document.getElementById('city').value;
+            const industry = document.getElementById('industry').value;
+            const count = parseInt(document.getElementById('count').value);
+            const maxPages = parseInt(document.getElementById('maxPages').value);
+
+            // Show loading overlay
+            document.querySelector('.loading-overlay').style.display = 'flex';
+
+            try {
+                // Send request to Python backend
+                const response = await fetch('/generate_links', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        country,
+                        city,
+                        industry,
+                        count,
+                        max_pages: maxPages
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch websites');
+                }
+
+                const data = await response.json();
+                
+                // Store search query in Firestore
+                const user = auth.currentUser;
+                await db.collection('searchQueries').add({
+                    userId: user.uid,
+                    country,
+                    city,
+                    industry,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    resultsCount: data.websites.length
+                });
+
+                // Display results
+                const resultsSection = document.getElementById('results');
+                const resultsBody = document.getElementById('resultsBody');
+                resultsBody.innerHTML = '';
+
+                data.websites.forEach(website => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${website}</td>
+                        <td>${data.search_query}</td>
+                    `;
+                    resultsBody.appendChild(row);
+                });
+
+                resultsSection.style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while fetching websites. Please try again.');
+            } finally {
+                // Hide loading overlay
+                document.querySelector('.loading-overlay').style.display = 'none';
+            }
+        });
     </script>
 </body>
-</html> 
+</html>
