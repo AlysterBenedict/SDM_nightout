@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .main-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-brand i {
+            font-size: 1.75rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Workflow Progress Styles */
+        .workflow-progress {
+            padding: 1rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress {
+            background-color: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .progress-step {
+            font-size: 0.875rem;
+            color: #64748b;
+            position: relative;
+            padding-top: 1rem;
+        }
+
+        .progress-step::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.completed::before {
+            background: var(--success);
+        }
+
+        .progress-step.active::before {
+            background: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .nav-links.active {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 1rem;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .progress-step {
+                font-size: 0.75rem;
+            }
+        }
+
+        .nav-link i {
+            margin-right: 0.5rem;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <i class="fas fa-search-dollar"></i>
+                E-Com Data Finder
+            </a>
+            <div class="nav-links">
+                <a href="fetch-websites.html" class="nav-link">
+                    <i class="fas fa-globe"></i>
+                    Fetch Websites
+                </a>
+                <a href="filter-websites.html" class="nav-link">
+                    <i class="fas fa-filter"></i>
+                    Filter Websites
+                </a>
+                <a href="fetch-emails.html" class="nav-link">
+                    <i class="fas fa-envelope"></i>
+                    Fetch Emails
+                </a>
+                <a href="results.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    Results
+                </a>
+            </div>
+            <div class="user-menu">
+                <div class="user-avatar" id="userAvatar"></div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Add Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Initialize Firebase if not already initialized
+        if (!firebase.apps.length) {
+            const firebaseConfig = {
+                apiKey: "AIzaSyBg2H7LazT_le2LBw4pXh9V1dnBd7E-Q3k",
+                authDomain: "sdm-project-b74b2.firebaseapp.com",
+                projectId: "sdm-project-b74b2",
+                storageBucket: "sdm-project-b74b2.firebasestorage.app",
+                messagingSenderId: "398654397753",
+                appId: "1:398654397753:web:3642aa4a9e530b77165ce8",
+                measurementId: "G-1R0VYWS88P"
+            };
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Set active nav link based on current page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication first
+            const auth = firebase.auth();
+            auth.onAuthStateChanged(function(user) {
+                if (!user) {
+                    // If not on login or register page, redirect to login
+                    const currentPage = window.location.pathname.split('/').pop();
+                    if (currentPage !== 'login.html' && currentPage !== 'register.html') {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                }
+
+                // Set active nav link
+                const currentPage = window.location.pathname.split('/').pop();
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === currentPage) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // Set user avatar initial and show/hide user menu
+                const userMenu = document.querySelector('.user-menu');
+                const userAvatar = document.getElementById('userAvatar');
+                
+                if (user) {
+                    userMenu.style.display = 'flex';
+                    if (userAvatar) {
+                        userAvatar.textContent = user.email[0].toUpperCase();
+                    }
+                } else {
+                    userMenu.style.display = 'none';
+                }
+            });
+
+            // Add logout functionality
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async function() {
+                    try {
+                        // Ensure Firebase Auth is available
+                        if (!firebase.auth) {
+                            throw new Error('Firebase Auth is not initialized');
+                        }
+                        
+                        // Sign out from Firebase
+                        await firebase.auth().signOut();
+                        
+                        // Clear all localStorage data
+                        localStorage.clear();
+                        
+                        // Force redirect to login page using replace to prevent back navigation
+                        window.location.replace('login.html');
+                    } catch (error) {
+                        console.error('Error signing out:', error);
+                        alert('Error signing out. Please try again.');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

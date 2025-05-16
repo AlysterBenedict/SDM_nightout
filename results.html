@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Results - E-Com Data Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #0ea5e9;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-websites { background: linear-gradient(45deg, #6366f1, #818cf8); }
+        .stat-emails { background: linear-gradient(45deg, #0ea5e9, #38bdf8); }
+        .stat-success { background: linear-gradient(45deg, #22c55e, #4ade80); }
+        .stat-time { background: linear-gradient(45deg, #f59e0b, #fbbf24); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .results-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 992px) {
+            .results-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .results-table {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-export {
+            background: var(--success);
+            color: white;
+            border: none;
+        }
+
+        .btn-export:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #f1f5f9;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .table tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-failed {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            margin-bottom: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-subtitle {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-error { border-left: 4px solid var(--danger); }
+
+        @media (max-width: 768px) {
+            .page-container { margin: 1rem auto; }
+            .page-title { font-size: 1.75rem; }
+            .stat-card { padding: 1rem; }
+            .stat-value { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="page-container">
+        <h1 class="page-title">
+            <i class="fas fa-chart-bar"></i>
+            Results & Analytics
+        </h1>
+
+        <!-- Add workflow progress -->
+        <div class="workflow-progress mb-4">
+            <div class="progress" style="height: 4px;">
+                <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <span class="progress-step completed">1. Fetch Websites</span>
+                <span class="progress-step completed">2. Filter Websites</span>
+                <span class="progress-step completed">3. Extract Emails</span>
+                <span class="progress-step active">4. View Results</span>
+            </div>
+        </div>
+
+        <!-- Add action buttons -->
+        <div class="d-flex justify-content-center gap-3 mb-4">
+            <button class="btn-action" onclick="window.location.href='fetch-websites.html'" style="background: var(--primary); color: white;">
+                <i class="fas fa-redo me-2"></i>
+                Start New Search
+            </button>
+            <button class="btn-action" onclick="window.location.href='fetch-emails.html'" style="background: var(--secondary); color: white;">
+                <i class="fas fa-envelope me-2"></i>
+                Extract More Emails
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon stat-websites">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div class="stat-value" id="totalWebsites">0</div>
+                <div class="stat-label">Total Websites Processed</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-emails">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="stat-value" id="totalEmails">0</div>
+                <div class="stat-label">Email IDs Found</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="stat-value" id="successRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-time">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value" id="avgTime">0s</div>
+                <div class="stat-label">Average Processing Time</div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-table">
+                <div class="table-header">
+                    <div class="table-title">Recent Results</div>
+                    <div class="table-actions">
+                        <button class="btn-action btn-export" id="exportCSV">
+                            <i class="fas fa-download"></i>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Website/Email</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTable">
+                            <!-- Results will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Success Distribution</div>
+                    <div class="chart-subtitle">Last 7 days performance</div>
+                </div>
+                <canvas id="successChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Load navigation
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+                
+                // Initialize logout button after nav is loaded
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async function() {
+                        try {
+                            await firebase.auth().signOut();
+                            localStorage.clear();
+                            window.location.replace('login.html');
+                        } catch (error) {
+                            console.error('Error signing out:', error);
+                            alert('Error signing out. Please try again.');
+                        }
+                    });
+                }
+            });
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBg2H7LazT_le2LBw4pXh9V1dnBd7E-Q3k",
+            authDomain: "sdm-project-b74b2.firebaseapp.com",
+            projectId: "sdm-project-b74b2",
+            storageBucket: "sdm-project-b74b2.firebasestorage.app",
+            messagingSenderId: "398654397753",
+            appId: "1:398654397753:web:3642aa4a9e530b77165ce8",
+            measurementId: "G-1R0VYWS88P"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Show loading overlay
+        function showLoading() {
+            document.querySelector('.loading-overlay').style.display = 'flex';
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            document.querySelector('.loading-overlay').style.display = 'none';
+        }
+
+        // Show toast message
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" 
+                   style="color: var(--${type === 'success' ? 'success' : 'danger'})"></i>
+                <span>${message}</span>
+            `;
+            document.querySelector('.toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        // Initialize success chart
+        function initializeChart() {
+            const ctx = document.getElementById('successChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
+            gradient.addColorStop(1, 'rgba(99, 102, 241, 0.1)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 7}, (_, i) => {
+                        const d = new Date();
+                        d.setDate(d.getDate() - i);
+                        return d.toLocaleDateString('en-US', { weekday: 'short' });
+                    }).reverse(),
+                    datasets: [{
+                        label: 'Success Rate',
+                        data: [85, 72, 86, 81, 84, 86, 94],
+                        borderColor: '#6366f1',
+                        backgroundColor: gradient,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: value => value + '%'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load results table
+        async function loadResults() {
+            showLoading();
+
+            try {
+                const snapshot = await db.collection('emailExtraction')
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+
+                const resultsTable = document.getElementById('resultsTable');
+                resultsTable.innerHTML = '';
+
+                if (snapshot.empty) {
+                    resultsTable.innerHTML = '<tr><td colspan="4" class="text-center">No results found</td></tr>';
+                    return;
+                }
+
+                let totalWebsites = 0;
+                let totalEmails = 0;
+                let successCount = 0;
+                let totalTime = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    totalWebsites++;
+                    
+                    if (data.status === 'success') {
+                        successCount++;
+                        totalEmails += data.emailsFound || 0;
+                        totalTime += data.processingTime || 0;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${data.website || data.email}</td>
+                        <td>
+                            <span class="status-badge status-${data.status || 'pending'}">
+                                ${data.status || 'Pending'}
+                            </span>
+                        </td>
+                        <td>${data.timestamp.toDate().toLocaleString()}</td>
+                        <td>${data.type || 'Website'}</td>
+                    `;
+                    resultsTable.appendChild(tr);
+                });
+
+                // Update statistics
+                document.getElementById('totalWebsites').textContent = totalWebsites;
+                document.getElementById('totalEmails').textContent = totalEmails;
+                document.getElementById('successRate').textContent = 
+                    Math.round((successCount / totalWebsites) * 100) + '%';
+                document.getElementById('avgTime').textContent = 
+                    Math.round(totalTime / successCount) + 's';
+
+                initializeChart();
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Handle CSV export
+        document.getElementById('exportCSV').addEventListener('click', async function() {
+            showLoading();
+
+            try {
+                const snapshot = await db.collection('emailExtraction')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                const csvData = [
+                    ['Website/Email', 'Status', 'Date', 'Type']
+                ];
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    csvData.push([
+                        data.website || data.email,
+                        data.status || 'Pending',
+                        data.timestamp.toDate().toLocaleString(),
+                        data.type || 'Website'
+                    ]);
+                });
+
+                const csvContent = 'data:text/csv;charset=utf-8,' + 
+                    csvData.map(row => row.join(',')).join('\n');
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', 'results.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showToast('CSV file exported successfully!');
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Check authentication and load data
+        auth.onAuthStateChanged(function(user) {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                loadResults();
+            }
+        });
+    </script>
+</body>
+</html> 

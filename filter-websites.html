@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Filter Websites - E-Com Data Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #0ea5e9;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .filter-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .filter-group {
+            margin-bottom: 2rem;
+        }
+
+        .filter-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-card {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .filter-card:hover {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+
+        .filter-label {
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-description {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .form-control {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            background-position: right 1rem center;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .tag-remove:hover {
+            color: var(--danger);
+        }
+
+        .btn-filter {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-filter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-filter:hover::before {
+            left: 100%;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .results-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .results-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .results-count {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .results-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .results-table td {
+            padding: 1rem 1.5rem;
+            color: #334155;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .results-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .website-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .website-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .website-info {
+            flex-grow: 1;
+        }
+
+        .website-url {
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .website-meta {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-error { border-left: 4px solid var(--danger); }
+
+        @media (max-width: 768px) {
+            .page-container { margin: 1rem auto; }
+            .page-title { font-size: 1.75rem; }
+            .filter-section { padding: 1.5rem; }
+            .results-header { flex-direction: column; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="page-container">
+        <h1 class="page-title">
+            <i class="fas fa-filter"></i>
+            Filter Websites
+        </h1>
+
+        <!-- Add workflow progress -->
+        <div class="workflow-progress mb-4">
+            <div class="progress" style="height: 4px;">
+                <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <span class="progress-step completed">1. Fetch Websites</span>
+                <span class="progress-step active">2. Filter Websites</span>
+                <span class="progress-step">3. Extract Emails</span>
+                <span class="progress-step">4. View Results</span>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <h2 class="filter-title">
+                    <i class="fas fa-sliders-h"></i>
+                    Filter Criteria
+                </h2>
+
+                <div class="filter-grid">
+                    <div class="filter-card">
+                        <div class="filter-label">Keywords</div>
+                        <div class="filter-description">Search for specific keywords in website content</div>
+                        <input type="text" class="form-control" id="keywords" placeholder="Enter keywords...">
+                        <div class="tag-container" id="keywordTags"></div>
+                    </div>
+
+                    <div class="filter-card">
+                        <div class="filter-label">Category</div>
+                        <div class="filter-description">Filter by website category</div>
+                        <select class="form-select" id="category">
+                            <option value="">All Categories</option>
+                            <option value="ecommerce">E-commerce</option>
+                            <option value="business">Business</option>
+                            <option value="technology">Technology</option>
+                            <option value="retail">Retail</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-card">
+                        <div class="filter-label">Location</div>
+                        <div class="filter-description">Filter by website location/region</div>
+                        <select class="form-select" id="location">
+                            <option value="">All Locations</option>
+                            <option value="us">United States</option>
+                            <option value="eu">Europe</option>
+                            <option value="asia">Asia</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-card">
+                        <div class="filter-label">Date Range</div>
+                        <div class="filter-description">Filter by website registration date</div>
+                        <div class="d-flex gap-2">
+                            <input type="date" class="form-control" id="startDate">
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn-filter" id="applyFilters">
+                <i class="fas fa-search me-2"></i>
+                Apply Filters
+            </button>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <div class="results-title">Filtered Results</div>
+                <div class="results-count">Showing <span id="resultCount">0</span> results</div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Website</th>
+                            <th>Category</th>
+                            <th>Location</th>
+                            <th>Date Added</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable">
+                        <!-- Results will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Load navigation
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBg2H7LazT_le2LBw4pXh9V1dnBd7E-Q3k",
+            authDomain: "sdm-project-b74b2.firebaseapp.com",
+            projectId: "sdm-project-b74b2",
+            storageBucket: "sdm-project-b74b2.firebasestorage.app",
+            messagingSenderId: "398654397753",
+            appId: "1:398654397753:web:3642aa4a9e530b77165ce8",
+            measurementId: "G-1R0VYWS88P"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Show loading overlay
+        function showLoading() {
+            document.querySelector('.loading-overlay').style.display = 'flex';
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            document.querySelector('.loading-overlay').style.display = 'none';
+        }
+
+        // Show toast message
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" 
+                   style="color: var(--${type === 'success' ? 'success' : 'danger'})"></i>
+                <span>${message}</span>
+            `;
+            document.querySelector('.toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        // Handle keywords
+        const keywords = [];
+        const keywordsInput = document.getElementById('keywords');
+        const keywordTags = document.getElementById('keywordTags');
+
+        keywordsInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                const keyword = this.value.trim();
+                if (!keywords.includes(keyword)) {
+                    keywords.push(keyword);
+                    updateKeywordTags();
+                }
+                this.value = '';
+            }
+        });
+
+        function updateKeywordTags() {
+            keywordTags.innerHTML = keywords.map(keyword => `
+                <div class="tag">
+                    ${keyword}
+                    <i class="fas fa-times tag-remove" onclick="removeKeyword('${keyword}')"></i>
+                </div>
+            `).join('');
+        }
+
+        function removeKeyword(keyword) {
+            const index = keywords.indexOf(keyword);
+            if (index > -1) {
+                keywords.splice(index, 1);
+                updateKeywordTags();
+            }
+        }
+
+        // Apply filters
+        document.getElementById('applyFilters').addEventListener('click', async function() {
+            showLoading();
+
+            try {
+                let query = db.collection('websites');
+
+                // Apply filters
+                const category = document.getElementById('category').value;
+                const location = document.getElementById('location').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                if (category) {
+                    query = query.where('category', '==', category);
+                }
+
+                if (location) {
+                    query = query.where('location', '==', location);
+                }
+
+                if (startDate) {
+                    query = query.where('dateAdded', '>=', new Date(startDate));
+                }
+
+                if (endDate) {
+                    query = query.where('dateAdded', '<=', new Date(endDate));
+                }
+
+                const snapshot = await query.get();
+                const resultsTable = document.getElementById('resultsTable');
+                resultsTable.innerHTML = '';
+
+                let filteredResults = [];
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    
+                    // Apply keyword filtering
+                    if (keywords.length > 0) {
+                        const websiteContent = (data.content || '').toLowerCase();
+                        if (!keywords.some(keyword => 
+                            websiteContent.includes(keyword.toLowerCase()))) {
+                            return;
+                        }
+                    }
+
+                    filteredResults.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+
+                document.getElementById('resultCount').textContent = filteredResults.length;
+
+                if (filteredResults.length === 0) {
+                    resultsTable.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                No results found matching your criteria
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                filteredResults.forEach(result => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="website-cell">
+                                <div class="website-icon">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                                <div class="website-info">
+                                    <div class="website-url">${result.url}</div>
+                                    <div class="website-meta">${result.description || ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${result.category || '-'}</td>
+                        <td>${result.location || '-'}</td>
+                        <td>${result.dateAdded ? result.dateAdded.toDate().toLocaleDateString() : '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="selectWebsite('${result.id}')">
+                                <i class="fas fa-check me-1"></i>
+                                Select
+                            </button>
+                        </td>
+                    `;
+                    resultsTable.appendChild(tr);
+                });
+
+                showToast('Filters applied successfully!');
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Select website
+        async function selectWebsite(websiteId) {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('Please login to continue');
+                }
+
+                await db.collection('selectedWebsites').add({
+                    userId: user.uid,
+                    websiteId: websiteId,
+                    timestamp: new Date()
+                });
+
+                showToast('Website selected successfully!');
+                // Add next step button
+                const nextStepBtn = document.createElement('button');
+                nextStepBtn.className = 'btn-fetch mt-3';
+                nextStepBtn.innerHTML = `
+                    <i class="fas fa-envelope me-2"></i>
+                    Continue to Email Extraction
+                `;
+                nextStepBtn.onclick = () => window.location.href = 'fetch-emails.html';
+                document.querySelector('.results-section').appendChild(nextStepBtn);
+                
+                // Redirect after delay
+                setTimeout(() => window.location.href = 'fetch-emails.html', 2000);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // Check authentication
+        auth.onAuthStateChanged(function(user) {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html> 

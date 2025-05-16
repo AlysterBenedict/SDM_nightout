@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch Emails - E-Com Data Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #0ea5e9;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .page-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .upload-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .upload-area {
+            border: 2px dashed #e2e8f0;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            transform: scale(0.99);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-hint {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .selected-file {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .file-details {
+            flex-grow: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-size {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .remove-file {
+            color: var(--danger);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-file:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .options-section {
+            margin-top: 2rem;
+        }
+
+        .option-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .custom-switch {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: #f8fafc;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 0.75rem;
+        }
+
+        .custom-switch:hover {
+            background: #f1f5f9;
+        }
+
+        .switch-content {
+            flex-grow: 1;
+        }
+
+        .switch-label {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .switch-description {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .switch-toggle {
+            position: relative;
+            width: 3rem;
+            height: 1.5rem;
+            background: #e2e8f0;
+            border-radius: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .switch-toggle::after {
+            content: '';
+            position: absolute;
+            top: 0.125rem;
+            left: 0.125rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        input[type="checkbox"]:checked + .switch-toggle {
+            background: var(--primary);
+        }
+
+        input[type="checkbox"]:checked + .switch-toggle::after {
+            transform: translateX(1.5rem);
+        }
+
+        .btn-fetch {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-fetch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-fetch::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-fetch:hover::before {
+            left: 100%;
+        }
+
+        .progress-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .progress-bar {
+            height: 0.5rem;
+            background: #e2e8f0;
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-error { border-left: 4px solid var(--danger); }
+
+        @media (max-width: 768px) {
+            .page-container { margin: 1rem auto; }
+            .upload-section { padding: 1.5rem; }
+            .page-title { font-size: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="page-container">
+        <h1 class="page-title">
+            <i class="fas fa-envelope"></i>
+            Fetch Email IDs
+        </h1>
+
+        <!-- Add workflow progress -->
+        <div class="workflow-progress mb-4">
+            <div class="progress" style="height: 4px;">
+                <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <span class="progress-step completed">1. Fetch Websites</span>
+                <span class="progress-step completed">2. Filter Websites</span>
+                <span class="progress-step active">3. Extract Emails</span>
+                <span class="progress-step">4. View Results</span>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <div class="upload-text">Upload Websites CSV</div>
+                <div class="upload-hint">Drag & drop your file here or click to browse</div>
+                <input type="file" class="file-input" id="websitesCSV" accept=".csv">
+            </div>
+
+            <div class="selected-file" id="selectedFile">
+                <div class="file-info">
+                    <i class="fas fa-file-csv file-icon"></i>
+                    <div class="file-details">
+                        <div class="file-name"></div>
+                        <div class="file-size"></div>
+                    </div>
+                    <i class="fas fa-times remove-file" id="removeFile"></i>
+                </div>
+            </div>
+
+            <div class="options-section">
+                <h2 class="option-title">
+                    <i class="fas fa-cog"></i>
+                    Email Extraction Options
+                </h2>
+
+                <div class="option-group">
+                    <label class="custom-switch">
+                        <input type="checkbox" id="deepScan" class="d-none">
+                        <div class="switch-content">
+                            <div class="switch-label">Deep Scan</div>
+                            <div class="switch-description">Scan subpages for additional email addresses</div>
+                        </div>
+                        <div class="switch-toggle"></div>
+                    </label>
+
+                    <label class="custom-switch">
+                        <input type="checkbox" id="validateEmails" class="d-none">
+                        <div class="switch-content">
+                            <div class="switch-label">Validate Emails</div>
+                            <div class="switch-description">Check if email addresses are valid and active</div>
+                        </div>
+                        <div class="switch-toggle"></div>
+                    </label>
+
+                    <label class="custom-switch">
+                        <input type="checkbox" id="removeDuplicates" class="d-none" checked>
+                        <div class="switch-content">
+                            <div class="switch-label">Remove Duplicates</div>
+                            <div class="switch-description">Filter out duplicate email addresses</div>
+                        </div>
+                        <div class="switch-toggle"></div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="button" class="btn-fetch" id="fetchEmails">
+                <i class="fas fa-search me-2"></i>
+                Start Email Extraction
+            </button>
+
+            <div class="progress-section" id="progressSection">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Processing websites...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    
+    <script>
+        // Load navigation
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+                
+                // Initialize logout button after nav is loaded
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async function() {
+                        try {
+                            await firebase.auth().signOut();
+                            localStorage.clear();
+                            window.location.replace('login.html');
+                        } catch (error) {
+                            console.error('Error signing out:', error);
+                            alert('Error signing out. Please try again.');
+                        }
+                    });
+                }
+            });
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBg2H7LazT_le2LBw4pXh9V1dnBd7E-Q3k",
+            authDomain: "sdm-project-b74b2.firebaseapp.com",
+            projectId: "sdm-project-b74b2",
+            storageBucket: "sdm-project-b74b2.firebasestorage.app",
+            messagingSenderId: "398654397753",
+            appId: "1:398654397753:web:3642aa4a9e530b77165ce8",
+            measurementId: "G-1R0VYWS88P"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('websitesCSV');
+        const selectedFile = document.getElementById('selectedFile');
+        const removeFile = document.getElementById('removeFile');
+        const fetchButton = document.getElementById('fetchEmails');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        // Show loading overlay
+        function showLoading() {
+            document.querySelector('.loading-overlay').style.display = 'flex';
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            document.querySelector('.loading-overlay').style.display = 'none';
+        }
+
+        // Show toast message
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" 
+                   style="color: var(--${type === 'success' ? 'success' : 'danger'})"></i>
+                <span>${message}</span>
+            `;
+            document.querySelector('.toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Handle file selection
+        function handleFileSelect(file) {
+            if (file) {
+                selectedFile.style.display = 'block';
+                selectedFile.querySelector('.file-name').textContent = file.name;
+                selectedFile.querySelector('.file-size').textContent = formatFileSize(file.size);
+                                 uploadArea.style.borderColor = '#22c55e'; // Using success color directly
+            } else {
+                selectedFile.style.display = 'none';
+                uploadArea.style.borderColor = '#e2e8f0';
+            }
+        }
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'text/csv') {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect(file);
+            } else {
+                showToast('Please upload a CSV file', 'error');
+            }
+        });
+
+        // Handle file input change
+        fileInput.addEventListener('change', function() {
+            handleFileSelect(this.files[0]);
+        });
+
+        // Handle remove file
+        removeFile.addEventListener('click', () => {
+            fileInput.value = '';
+            handleFileSelect(null);
+        });
+
+        // Handle fetch emails
+        fetchButton.addEventListener('click', async function() {
+            if (!fileInput.files.length) {
+                showToast('Please upload a CSV file', 'error');
+                return;
+            }
+
+            showLoading();
+            progressSection.style.display = 'block';
+            let progress = 0;
+
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('Please login to continue');
+                }
+
+                Papa.parse(fileInput.files[0], {
+                    complete: async function(results) {
+                        try {
+                            const websites = results.data.filter(row => row[0]);
+                            const totalWebsites = websites.length;
+                            
+                            for (let i = 0; i < websites.length; i++) {
+                                progress = ((i + 1) / totalWebsites) * 100;
+                                progressFill.style.width = progress + '%';
+                                progressText.textContent = `Processing ${i + 1} of ${totalWebsites} websites...`;
+
+                                await db.collection('emailExtraction').add({
+                                    userId: user.uid,
+                                    userEmail: user.email,
+                                    website: websites[i][0],
+                                    deepScan: document.getElementById('deepScan').checked,
+                                    validateEmails: document.getElementById('validateEmails').checked,
+                                    removeDuplicates: document.getElementById('removeDuplicates').checked,
+                                    timestamp: new Date()
+                                });
+                            }
+
+                            showToast('Email extraction started successfully!');
+                            // Add next step button
+                            const nextStepBtn = document.createElement('button');
+                            nextStepBtn.className = 'btn-fetch mt-3';
+                            nextStepBtn.innerHTML = `
+                                <i class="fas fa-chart-bar me-2"></i>
+                                View Results
+                            `;
+                            nextStepBtn.onclick = () => window.location.href = 'results.html';
+                            document.querySelector('.upload-section').appendChild(nextStepBtn);
+                            
+                            // Redirect after delay
+                            setTimeout(() => window.location.href = 'results.html', 2000);
+                        } catch (err) {
+                            showToast(err.message, 'error');
+                        }
+                    },
+                    error: function(err) {
+                        showToast('Error parsing CSV: ' + err.message, 'error');
+                    }
+                });
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Check authentication
+        auth.onAuthStateChanged(function(user) {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html> 

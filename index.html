@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>E-Com Data Finder - Your E-commerce Data Solution</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #0ea5e9;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .hero-section {
+            padding: 4rem 0;
+            text-align: center;
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95));
+            border-radius: 0 0 2rem 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-hero {
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-gradient {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+        }
+
+        .btn-primary-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            color: white;
+        }
+
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .feature-websites { background: linear-gradient(45deg, #6366f1, #818cf8); }
+        .feature-filter { background: linear-gradient(45deg, #0ea5e9, #38bdf8); }
+        .feature-emails { background: linear-gradient(45deg, #22c55e, #4ade80); }
+        .feature-analytics { background: linear-gradient(45deg, #f59e0b, #fbbf24); }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .feature-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .feature-link:hover {
+            color: var(--secondary);
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .hero-subtitle { font-size: 1rem; }
+            .hero-buttons { flex-direction: column; }
+            .btn-hero { width: 100%; }
+            .features-grid { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="hero-section">
+        <h1 class="hero-title">E-Com Data Finder</h1>
+        <p class="hero-subtitle">
+            Discover, analyze, and extract valuable e-commerce data with our powerful suite of tools.
+            Get actionable insights for your business growth.
+        </p>
+        <div class="hero-buttons">
+            <a href="fetch-websites.html" class="btn btn-hero btn-primary-gradient">
+                <i class="fas fa-rocket"></i>
+                Get Started
+            </a>
+            <a href="results.html" class="btn btn-hero btn-outline">
+                <i class="fas fa-chart-bar"></i>
+                View Analytics
+            </a>
+        </div>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon feature-websites">
+                <i class="fas fa-globe"></i>
+            </div>
+            <h3 class="feature-title">Website Discovery</h3>
+            <p class="feature-description">
+                Find relevant e-commerce websites based on location, industry, and other criteria.
+                Build your target list efficiently.
+            </p>
+            <a href="fetch-websites.html" class="feature-link">
+                Start Discovery
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon feature-filter">
+                <i class="fas fa-filter"></i>
+            </div>
+            <h3 class="feature-title">Smart Filtering</h3>
+            <p class="feature-description">
+                Apply advanced filters to refine your website selection. Focus on the most promising opportunities.
+            </p>
+            <a href="filter-websites.html" class="feature-link">
+                Filter Websites
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon feature-emails">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h3 class="feature-title">Email Extraction</h3>
+            <p class="feature-description">
+                Extract and validate email addresses from selected websites. Build your contact database.
+            </p>
+            <a href="fetch-emails.html" class="feature-link">
+                Extract Emails
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon feature-analytics">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title">Analytics & Insights</h3>
+            <p class="feature-description">
+                View detailed analytics and insights about your data collection. Make data-driven decisions.
+            </p>
+            <a href="results.html" class="feature-link">
+                View Results
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="totalWebsites">0</div>
+                <div class="stat-label">Websites Analyzed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalEmails">0</div>
+                <div class="stat-label">Emails Found</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="successRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="activeUsers">0</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Load navigation and initialize logout functionality
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+                
+                // Initialize logout button after nav is loaded
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async function() {
+                        try {
+                            await firebase.auth().signOut();
+                            localStorage.clear();
+                            window.location.replace('login.html');
+                        } catch (error) {
+                            console.error('Error signing out:', error);
+                            alert('Error signing out. Please try again.');
+                        }
+                    });
+                }
+            });
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBg2H7LazT_le2LBw4pXh9V1dnBd7E-Q3k",
+            authDomain: "sdm-project-b74b2.firebaseapp.com",
+            projectId: "sdm-project-b74b2",
+            storageBucket: "sdm-project-b74b2.firebasestorage.app",
+            messagingSenderId: "398654397753",
+            appId: "1:398654397753:web:3642aa4a9e530b77165ce8",
+            measurementId: "G-1R0VYWS88P"
+        };
+
+        // Initialize Firebase with your config
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const statsSnapshot = await db.collection('statistics').doc('global').get();
+                const stats = statsSnapshot.data() || {};
+                
+                document.getElementById('totalWebsites').textContent = stats.totalWebsites || '0';
+                document.getElementById('totalEmails').textContent = stats.totalEmails || '0';
+                document.getElementById('successRate').textContent = (stats.successRate || '0') + '%';
+                document.getElementById('activeUsers').textContent = stats.activeUsers || '0';
+            } catch (err) {
+                console.error('Error loading stats:', err);
+            }
+        }
+
+        // Check if user has ever visited before
+        const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
+
+        // Check authentication and handle routing
+        auth.onAuthStateChanged(function(user) {
+            if (!user) {
+                // If user has never visited, send to registration
+                if (!hasVisitedBefore) {
+                    localStorage.setItem('hasVisitedBefore', 'true');
+                    window.location.href = 'register.html';
+                } else {
+                    // If they've visited before but are not logged in, send to login
+                    window.location.href = 'login.html';
+                }
+            } else {
+                // User is logged in, load the stats
+                loadStats();
+                
+                // Store user info in localStorage
+                localStorage.setItem('user', JSON.stringify({
+                    email: user.email,
+                    uid: user.uid,
+                    lastAccess: new Date().toISOString()
+                }));
+
+                // Update user's last access in Firestore
+                db.collection('users').doc(user.uid).update({
+                    lastAccess: new Date()
+                }).catch(console.error);
+
+                // Show appropriate welcome message
+                const registrationComplete = localStorage.getItem('registrationComplete');
+                if (registrationComplete) {
+                    showWelcomeMessage(user.email);
+                }
+            }
+        });
+
+        // Show welcome message for new users
+        function showWelcomeMessage(email) {
+            const welcomeDiv = document.createElement('div');
+            welcomeDiv.className = 'alert alert-success text-center mb-4';
+            welcomeDiv.style.borderRadius = '1rem';
+            welcomeDiv.innerHTML = `
+                <h4 class="alert-heading">Welcome to E-Com Data Finder!</h4>
+                <p>Thank you for registering, ${email}! Let's get started with your data discovery journey.</p>
+                <hr>
+                <p class="mb-0">Click "Get Started" to begin finding e-commerce websites.</p>
+            `;
+            document.querySelector('.hero-section').insertBefore(welcomeDiv, document.querySelector('.hero-title'));
+            
+            // Remove registration complete flag
+            localStorage.removeItem('registrationComplete');
+        }
+    </script>
+</body>
+</html> 

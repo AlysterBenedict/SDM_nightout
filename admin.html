@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - E-Com Data Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { background: #f8f9fa; }
+        .card { box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .section-title { font-weight: 600; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <h2 class="mb-4">Admin Panel - E-Com Data Finder</h2>
+    <div id="authSection">
+        <div class="card p-4 mb-4" style="max-width:400px;margin:auto;">
+            <h5 class="mb-3">Admin Login</h5>
+            <form id="loginForm">
+                <div class="mb-2">
+                    <label for="adminid" class="form-label">Admin ID</label>
+                    <input type="text" class="form-control" id="adminid" required>
+                </div>
+                <div class="mb-2">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-dark w-100">Login</button>
+            </form>
+            <div id="loginError" class="text-danger mt-2"></div>
+        </div>
+    </div>
+    <div id="adminContent" style="display:none;">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 text-center">
+                    <h6>Total Users</h6>
+                    <h3 id="totalUsers">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 text-center">
+                    <h6>Total Searches</h6>
+                    <h3 id="totalSearches">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 text-center">
+                    <h6>Recent Requirements</h6>
+                    <h3 id="recentRequirements">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h6>Searches Per Day</h6>
+                    <canvas id="searchesPerDayChart" height="150"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h6>Top Countries</h6>
+                    <canvas id="topCountriesChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="card p-3 mb-4">
+            <h6>Recent User Requirements</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>User Email</th>
+                            <th>Country</th>
+                            <th>City</th>
+                            <th>Industry</th>
+                            <th>Count</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requirementsTableBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card p-3 mb-4">
+            <h6>User List & Activity</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Country</th>
+                            <th>Registered</th>
+                            <th>Searches</th>
+                            <th>Filters</th>
+                            <th>CSV Uploads</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userListTableBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button class="btn btn-danger" id="logoutBtn">Logout</button>
+    </div>
+</div>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBg2H7LazT_le2LBw4pXh9V1dnBd7E-Q3k",
+  authDomain: "sdm-project-b74b2.firebaseapp.com",
+  projectId: "sdm-project-b74b2",
+  storageBucket: "sdm-project-b74b2.firebasestorage.app",
+  messagingSenderId: "398654397753",
+  appId: "1:398654397753:web:3642aa4a9e530b77165ce8",
+  measurementId: "G-1R0VYWS88P"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Auth logic
+const authSection = document.getElementById('authSection');
+const adminContent = document.getElementById('adminContent');
+const loginForm = document.getElementById('loginForm');
+const loginError = document.getElementById('loginError');
+const logoutBtn = document.getElementById('logoutBtn');
+
+loginForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    loginError.textContent = '';
+    const adminid = document.getElementById('adminid').value.trim();
+    const password = document.getElementById('password').value;
+    if (adminid === '2004' && password === '2004') {
+        authSection.style.display = 'none';
+        adminContent.style.display = '';
+        loadAnalytics();
+    } else {
+        loginError.textContent = 'Invalid admin credentials!';
+    }
+});
+
+logoutBtn.addEventListener('click', function() {
+    adminContent.style.display = 'none';
+    authSection.style.display = '';
+});
+
+// Analytics logic
+function loadAnalytics() {
+    // Total users (unique userIds in searchQueries)
+    db.collection('searchQueries').get().then(snapshot => {
+        const users = new Set();
+        let totalSearches = 0;
+        let requirements = [];
+        let countryCount = {};
+        let searchesPerDay = {};
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            if (d.userId) users.add(d.userId);
+            totalSearches++;
+            requirements.push(d);
+            // Country analytics
+            if (d.country) countryCount[d.country] = (countryCount[d.country] || 0) + 1;
+            // Searches per day
+            if (d.timestamp) {
+                const date = d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp);
+                const day = date.toISOString().slice(0,10);
+                searchesPerDay[day] = (searchesPerDay[day] || 0) + 1;
+            }
+        });
+        document.getElementById('totalUsers').textContent = users.size;
+        document.getElementById('totalSearches').textContent = totalSearches;
+        document.getElementById('recentRequirements').textContent = requirements.length;
+        // Table
+        const tbody = document.getElementById('requirementsTableBody');
+        tbody.innerHTML = '';
+        requirements.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+        requirements.slice(0, 10).forEach(d => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${d.userEmail || ''}</td><td>${d.country || ''}</td><td>${d.city || ''}</td><td>${d.industry || ''}</td><td>${d.count || ''}</td><td>${d.timestamp ? (d.timestamp.toDate ? d.timestamp.toDate().toLocaleString() : new Date(d.timestamp).toLocaleString()) : ''}</td>`;
+            tbody.appendChild(tr);
+        });
+        // Graphs
+        renderSearchesPerDayChart(searchesPerDay);
+        renderTopCountriesChart(countryCount);
+        loadUserAnalytics();
+    });
+}
+
+function renderSearchesPerDayChart(data) {
+    const ctx = document.getElementById('searchesPerDayChart').getContext('2d');
+    const labels = Object.keys(data).sort();
+    const values = labels.map(l => data[l]);
+    if (window.searchesPerDayChart) window.searchesPerDayChart.destroy();
+    window.searchesPerDayChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Searches',
+                data: values,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0,123,255,0.1)',
+                fill: true
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+}
+
+function renderTopCountriesChart(data) {
+    const ctx = document.getElementById('topCountriesChart').getContext('2d');
+    const sorted = Object.entries(data).sort((a,b) => b[1]-a[1]).slice(0,5);
+    const labels = sorted.map(x => x[0]);
+    const values = sorted.map(x => x[1]);
+    if (window.topCountriesChart) window.topCountriesChart.destroy();
+    window.topCountriesChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['#007bff','#28a745','#ffc107','#dc3545','#6c757d']
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+}
+
+// User List & Activity Table
+function loadUserAnalytics() {
+    db.collection('users').get().then(userSnap => {
+        const users = [];
+        userSnap.forEach(doc => {
+            const d = doc.data();
+            users.push({ uid: doc.id, ...d, searches: 0, filters: 0, uploads: 0 });
+        });
+
+        Promise.all([
+            db.collection('searchQueries').get(),
+            db.collection('filters').get(),
+            db.collection('uploadedWebsites').get()
+        ]).then(([searchSnap, filterSnap, uploadSnap]) => {
+            searchSnap.forEach(doc => {
+                const d = doc.data();
+                const user = users.find(u => u.uid === d.userId);
+                if (user) user.searches++;
+            });
+            filterSnap.forEach(doc => {
+                const d = doc.data();
+                const user = users.find(u => u.uid === d.userId);
+                if (user) user.filters++;
+            });
+            uploadSnap.forEach(doc => {
+                const d = doc.data();
+                const user = users.find(u => u.uid === d.userId);
+                if (user) user.uploads++;
+            });
+
+            const tbody = document.getElementById('userListTableBody');
+            tbody.innerHTML = '';
+            users.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${u.name || ''}</td>
+                    <td>${u.email || ''}</td>
+                    <td>${u.country || ''}</td>
+                    <td>${u.createdAt ? (u.createdAt.toDate ? u.createdAt.toDate().toLocaleString() : new Date(u.createdAt).toLocaleString()) : ''}</td>
+                    <td>${u.searches}</td>
+                    <td>${u.filters}</td>
+                    <td>${u.uploads}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    });
+}
+</script>
+</body>
+</html> 
